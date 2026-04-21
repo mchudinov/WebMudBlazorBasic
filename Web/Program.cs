@@ -28,7 +28,7 @@ namespace Web
             try
             {
                 var applicationStartTime = DateTimeOffset.UtcNow;
-                Serilog.Log.Logger.Information("Overlege web is running");
+                Serilog.Log.Logger.Information("Web is running");
                 Serilog.Log.Logger.Debug($".NET Version: {Environment.Version}");
                 Serilog.Log.Logger.Debug("► Environment variables");
                 Environment.GetEnvironmentVariables().OutputEnvironmentVariables();
@@ -93,14 +93,13 @@ namespace Web
                 app.MapGet("/info", () => """
                     /livez liveness check
                     /uptime uptime statistic
-                    /healthchecks-ui HealthChecks dashboard
                     """);
 
                 app.Run();
             }
             catch (Exception ex)
             {
-                Serilog.Log.Fatal(ex, "Overlege worker process terminated unexpectedly.");
+                Serilog.Log.Fatal(ex, "Web worker process terminated unexpectedly.");
             }
             finally
             {

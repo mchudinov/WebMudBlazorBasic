@@ -130,8 +130,7 @@ namespace Library
         }
 
         public static WebApplication MapDefaultEndpoints(this WebApplication app, DateTimeOffset applicationStartTime)
-        {
-            app.MapHealthChecks("/healthz");            
+        {            
             app.MapGet("/livez", () => "Live");
             app.MapGet("/uptime", () =>
             {
