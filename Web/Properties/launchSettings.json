@@ -7,14 +7,14 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:8081"
+      "applicationUrl": "http://localhost:8089"
     },
     "Container prod": {
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "ASPNETCORE_HTTP_PORTS": "8081",
+        "ASPNETCORE_HTTP_PORTS": "8089",
         "ASPNETCORE_ENVIRONMENT": "Production",
         "DOTNET_ENVIRONMENT": "Production"
       },

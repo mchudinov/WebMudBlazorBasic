@@ -85,7 +85,6 @@ namespace Web
                 app.UseAuthorization();
                 app.MapStaticAssets();
                 app.MapDefaultEndpoints(applicationStartTime);
-                app.UseOutputCache();
 
                 app.MapRazorComponents<Web.Components.App>()
                     .AddInteractiveServerRenderMode();
