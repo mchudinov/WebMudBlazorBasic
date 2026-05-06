@@ -71,41 +71,6 @@ namespace Library
             }
         }
 
-        /// <summary>
-        /// Trims spaces and replaces invalid Azure Blob Storage name characters with underscores.
-        /// </summary>
-        /// <param name="input">The original string.</param>
-        /// <returns>A sanitized blob name string.</returns>
-        public static string ToAzureBlobSafeName(this string input)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-                return string.Empty;
-
-            // Trim leading/trailing spaces
-            var trimmed = input.Trim().Normalize(NormalizationForm.FormKC);
-
-            // Azure blob names cannot contain: \, /, ?, #, and must not end with dot or slash
-            // We'll also replace spaces and control characters
-            var invalidCharsPattern = @"[\\\/\?\#\r\n\t\f\v ]";
-            var sanitized = Regex.Replace(trimmed, invalidCharsPattern, "_");
-
-            // Remove trailing dots or slashes
-            sanitized = sanitized.TrimEnd('.', '/');
-
-            var utf8Encoding = Encoding.GetEncoding(
-                "US-ASCII",
-                new EncoderReplacementFallback("_"),
-                new DecoderReplacementFallback("_"));
-
-            sanitized = utf8Encoding.GetString(utf8Encoding.GetBytes(sanitized));
-
-            // Optionally, limit length to 1024 characters (Azure max)
-            if (sanitized.Length > 1024)
-                sanitized = sanitized.Substring(0, 1024);
-
-            return sanitized;
-        }
-
         public static IHostApplicationBuilder AddOpenTelemetry(this IHostApplicationBuilder builder)
         {
             // APPLICATIONINSIGHTS_CONNECTION_STRING injected from Aspire when running locally
