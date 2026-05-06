@@ -23,15 +23,18 @@ Server-interactive Blazor app (`.NET 10`, MudBlazor 9) with a shared `Library` f
   2. `IConfiguration` is built manually (`appsettings.json` + `appsettings.{DOTNET_ENVIRONMENT}.json` + env vars) and bound to the strongly-typed `Settings` record (`Web/Settings.cs`) **before** `WebApplication.CreateBuilder`. This `Settings` instance is then registered as a singleton.
   3. The real Serilog logger is reattached via `builder.Logging.ClearProviders()` + `AddSerilog` reading from `builder.Configuration`.
   4. `builder.AddOpenTelemetry()` (see `Library/Extensions.cs`) only wires Azure Monitor + OTLP if `APPLICATIONINSIGHTS_CONNECTION_STRING` is present — locally the app runs with no telemetry exporter.
-  5. An `AzureOpenAIClient` is registered as a singleton using `Settings.AzureOpenAI` (endpoint + API key).
+  5. An `AzureOpenAIClient` is registered as a singleton using `Settings.AzureOpenAI` (endpoint + API key). It is **not yet consumed** anywhere — it is scaffolding for future chat functionality.
   6. `AddRazorComponents().AddInteractiveServerComponents()` + `AddMudServices()` wire MudBlazor and interactive Blazor Server rendering.
 - Routing and rendering: `Components/App.razor` is the root document (loads MudBlazor CSS/JS, has `<ReconnectModal />` for Blazor Server reconnection). `Components/Routes.razor` points the router at `Layout.MainLayout` and `Pages.NotFound`. Pages live in `Web/Components/Pages/`; shared layout in `Web/Components/Layout/MainLayout.razor` (MudBlazor AppBar with a dark-mode toggle persisted in `localStorage`).
-- Razor component `_Imports.razor` globally imports `MudBlazor`, `Web`, `Web.Components`, and `Web.Components.Layout` — new components don't need those `@using` lines.
+- `MainLayout` navigation bar has buttons linking to `/How_it_works` and `/Demo` — those routes do not yet have corresponding page components.
+- Razor component `_Imports.razor` globally imports `MudBlazor`, `Web`, `Web.Components`, `Web.Components.Layout`, and `Microsoft.JSInterop` — new components don't need those `@using` lines.
+- Components follow the Blazor scoped-asset pattern: a component can have a co-located `.razor.css` (scoped styles) and `.razor.js` (JS module loaded via `IJSRuntime`) file. `ReconnectModal` demonstrates both.
 - Diagnostics endpoints mapped from `Library.Extensions.MapDefaultEndpoints`: `GET /livez`, `GET /uptime`, `GET /error` (exception handler). `Program.cs` adds `GET /info` describing them. `UseStatusCodePagesWithReExecute("/not-found")` routes unknown paths through the `NotFound` page.
 - The `Library` project intentionally has no runtime dependency on ASP.NET Core for its utility methods (`AllConfigurationKeys`, `OutputEnvironmentVariables`, `LogStrings`, `ToAzureBlobSafeName`) but does reference `Azure.Monitor.OpenTelemetry.AspNetCore` for the `AddOpenTelemetry` extension — keep that split in mind when adding helpers.
 
 ## Configuration
 
+- `Settings` record (`Web/Settings.cs`) shape: `Environment` (string) + `AzureOpenAI` nested record with `Endpoint`, `ApiKey`, and `DeploymentNameChat` — all default to `string.Empty`.
 - `Web/appsettings.json` has a committed placeholder `Settings:AzureOpenAI:ApiKey = "dummy"`. Override via environment (`Settings__AzureOpenAI__ApiKey=...`) or an `appsettings.{env}.json` rather than editing the committed file.
 - `Settings` is required — if the `Settings` section is missing or can't bind, `Program.Main` throws `InvalidOperationException` during startup.
 - Kestrel is pinned to `http://*:8089` in `appsettings.json`; the Dockerfile and launch profiles assume the same port.
